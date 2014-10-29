@@ -1,0 +1,59 @@
+<?php namespace Atrauzzi\Imager;
+
+use Intervention\Image\Image;
+use Symfony\Component\HttpFoundation\File\File;
+
+
+/**
+ * Class ImageData
+ *
+ * Represents some internal information we'd like to gather on image originals prior to storage.
+ *
+ * @package Atrauzzi\Imager
+ */
+class ImageData {
+
+	/** @var \Symfony\Component\HttpFoundation\File */
+	protected $file;
+
+	/** @var \Intervention\Image\Image */
+	protected $intervention;
+
+	/**
+	 * @param File $file
+	 * @param \Intervention\Image\Image $intervention
+	 */
+	public function __construct(File $file, Image $intervention) {
+		$this->file = $file;
+		$this->intervention = $intervention;
+		$this->intervention->backup();
+	}
+
+	/**
+	 * @return int
+	 */
+	public function getWidth() {
+		return $this->intervention->width();
+	}
+
+	/**
+	 * @return int
+	 */
+	public function getHeight() {
+		return $this->intervention->height();
+	}
+
+	/**
+	 * @return string
+	 */
+	public function getAveragePixelColor() {
+
+		$this->intervention->resize(1,1);
+		$color = substr($this->intervention->pickColor(0,0, 'hex'), 1);
+		$this->intervention->reset();
+
+		return $color;
+
+	}
+
+}

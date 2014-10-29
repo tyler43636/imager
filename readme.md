@@ -15,22 +15,22 @@ Features at a [glance](https://docs.google.com/presentation/d/1BzFZSpVx7qqcOK8QO
 
 To get Imager ready for use in your project, take the usual steps for setting up a Laravel 4 pacakge.
 
- * Add `tippingcanoe/imager` to your `composer.json` file.
+ * Add `atrauzzi/imager` to your `composer.json` file.
  * Run `composer update` at the root of your project.
  * Edit your `app/config/app.php` file and add: 
-   * `'TippingCanoe\Imager\ServiceProvider',` into the `providers` array 
-   * `'Imager' => 'TippingCanoe\Imager\Facade',` into the `aliases` array
- * Run the migration `./artisan migrate --package="tippingcanoe/imager"`
- * Take a project-level copy of the configuration `./artisan config:publish tippingcanoe/imager`
+   * `'Atrauzzi\Imager\ServiceProvider',` into the `providers` array 
+   * `'Imager' => 'Atrauzzi\Imager\Facade',` into the `aliases` array
+ * Run the migration `./artisan migrate --package="atrauzzi/imager"`
+ * Take a project-level copy of the configuration `./artisan config:publish atrauzzi/imager`
 
 ```
-Note: If you are using type-hinted dependency injection in your project, as a convenience Imager also binds the type `TippingCanoe\Imager\Service` in the container.
+Note: If you are using type-hinted dependency injection in your project, as a convenience Imager also binds the type `Atrauzzi\Imager\Service` in the container.
 ```
 
 ## Configuring
 
 ### Storage
-If you open the copy of `config.php` that was created by the last step during setup, you will see it is already populated with configuration options for the most typical of setups.  The `TippingCanoe\Imager\Storage\Filesystem` driver is the most basic which simply stores image files in your site's public directory.
+If you open the copy of `config.php` that was created by the last step during setup, you will see it is already populated with configuration options for the most typical of setups.  The `Atrauzi\Imager\Storage\Filesystem` driver is the most basic which simply stores image files in your site's public directory.
 
 #### Amazon S3 Driver
 Replace the filesystem driver configuration in the 'config.php' file with the Amazon AWS configuration below.
@@ -38,7 +38,7 @@ Replace the filesystem driver configuration in the 'config.php' file with the Am
 [
 	'storage' =>
 	[
-		'TippingCanoe\Imager\Storage\S3' =>
+		'Atrauzzi\Imager\Storage\S3' =>
 		[
 			'aws_key' => 'YOUR_KEY_HERE',
 			'aws_secret' => 'YOUR_SECRET_HERE',
@@ -50,7 +50,7 @@ Replace the filesystem driver configuration in the 'config.php' file with the Am
 ### Filters
 Imager's filtering chains are a powerful feature that allow you to orchestrate arbitrary combinations of manipulations when retrieving images.  When processing a chain, Imager does the following for each filter in the chain:
 
- * Attempts to instantiate the indicated class which must implement `TippingCanoe\Imager\Processing\Filter`
+ * Attempts to instantiate the indicated class which must implement `Atrauzzi\Imager\Processing\Filter`
  * If the filter's configuration was an array, each key in the second index will be called as setter methods on the subclass
  * Calls the method `process` on the subclass passing in the original image and the database entry for the image
  
@@ -59,10 +59,10 @@ You will most likely want to pre-configure filter chains for your project so tha
 ```
 [
 
-	'TippingCanoe\Imager\Processing\FixRotation',
+	'Atrauzzi\Imager\Processing\FixRotation',
 	
 	[
-		'TippingCanoe\Imager\Processing\Resize',
+		'Atrauzzi\Imager\Processing\Resize',
 		[
 			'width' => 300,
 			'height' => 300,
@@ -71,7 +71,7 @@ You will most likely want to pre-configure filter chains for your project so tha
 	],
 	
 	[
-		'TippingCanoe\Imager\Processing\Watermark',
+		'Atrauzzi\Imager\Processing\Watermark',
 		[
 			'source_path' => sprintf('%s/logo.png', __DIR__),
 			'anchor' => 'bottom-right'
@@ -101,7 +101,7 @@ The two optional, secondary pieces of information that Imager makes use of are `
 
 ### Trait
 
-If you plan on attaching images to a model (User, Item, Gallery), that model must implement the interface `TippingCanoe\Imager\Model\Imageable`.  This will mandate a method that you can either implement yourself or conveniently keep in sync with Imager by using the trait `TippingCanoe\Imager\Model\ImageableImpl`.
+If you plan on attaching images to a model (User, Item, Gallery), that model must implement the interface `Atrauzzi\Imager\Model\Imageable`.  This will mandate a method that you can either implement yourself or conveniently keep in sync with Imager by using the trait `Atrauzzi\Imager\Model\ImageableImpl`.
 
 
 ### Saving
@@ -110,17 +110,17 @@ Saving images is done via the Imager service which can either be accessed via th
 
 ```
 	/** @var \Symfony\Component\HttpFoundation\File\File $file */
-	/** @var \TippingCanoe\Imager\Model\Imageable $imageable */
+	/** @var \Atrauzzi\Imager\Model\Imageable $imageable */
 
 	$attributes = [
 		'slot' => 1
 	];
 
-	/** @var \TippingCanoe\Imager\Model\Image $image */
+	/** @var \Atrauzzi\Imager\Model\Image $image */
 	$image = Imager::saveFromFile($file, $imageable, $attributes);
 ```
 
-Imager will return an instance of `TippingCanoe\Imager\Model\Image` upon a successful save.  If you supplied one, the image record will be associated with an imageable.  Any additional attributes will be passed through to the save as well.
+Imager will return an instance of `Atrauzzi\Imager\Model\Image` upon a successful save.  If you supplied one, the image record will be associated with an imageable.  Any additional attributes will be passed through to the save as well.
 
 ### Retrieval
 
@@ -143,7 +143,7 @@ When retrieving images from imager, it's helpful to remember that anywhere you s
 
 ### Slots
 
-Imager features a concept known as slots which at it's very core is just a string value.  Slots are used to order and/or key images by their imageable.  There are helper scopes on the `TippingCanoe\Imager\Model\Image` class to help with retrieving images based on their slot values.
+Imager features a concept known as slots which at it's very core is just a string value.  Slots are used to order and/or key images by their imageable.  There are helper scopes on the `Atrauzzi\Imager\Model\Image` class to help with retrieving images based on their slot values.
 
 ```
 Note: When storing images without an imageable (globally), keep in mind that they are all sharing the same slot scope and cannot have duplicates.
@@ -171,7 +171,7 @@ Here's a sample of the schema used when performing batch operations:
 	];
 
 	/** @var \Symfony\Component\HttpFoundation\File\File[] $newFiles */
-	/** @var \TippingCanoe\Imager\Model\Imageable $imageable */
+	/** @var \Atrauzzi\Imager\Model\Imageable $imageable */
 
 	Imager::batch($operations, $newFiles, $imageable);
 
@@ -192,7 +192,7 @@ It's important to note that slot keys cannot be duplicated in this schema, so it
 
 ## Drivers
 
-More drivers will be added over time and we are always interested in hearing suggestions for new ones or receiving pull requests with your own ideas.  Creating a driver is as simple as implementing the interface `TippingCanoe\Imager\Storage\Driver` which is fully documented.  You can also use `TippingCanoe\Imager\Storage\Filesystem` as a reference.
+More drivers will be added over time and we are always interested in hearing suggestions for new ones or receiving pull requests with your own ideas.  Creating a driver is as simple as implementing the interface `Atrauzzi\Imager\Storage\Driver` which is fully documented.  You can also use `Atrauzzi\Imager\Storage\Filesystem` as a reference.
 
 
 ## Filters
@@ -209,4 +209,4 @@ If you encounter any issues, find a bug or have any questions, feel free to open
 
 ### Credits
 
-Imager is created and maintained by [Alexander Trauzzi](http://goo.gl/LxDkxM) at [Tipping Canoe](http://www.tippingcanoe.com).
+Imager is created and maintained by [Alexander Trauzzi](http://profiles.google.com/atrauzzi).
